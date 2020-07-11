@@ -1,0 +1,6 @@
+@author: Envald Alexey
+-----------------
+
+.idea/*
+target/*
+*.iml
