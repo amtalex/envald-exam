@@ -20,36 +20,39 @@ public class DeviceService {
 
     private DeviceDataBaseController controller = DeviceDataBaseController.getInstance();
 
-    private DeviceService() {
+    public DeviceService() {
     }
 
-    List<Device> getDevices() {
+    public List<Device> getDevices() {
         return controller.selectAll();
     }
 
-    void addDevice(Device device) {
+    public void addDevice(Device device) {
         controller.add(device);
     }
 
-    void deleteDevice(Device device) {
+    public void deleteDevice(Device device) {
         if (!device.getIssued())
             controller.delete(device);
     }
 
-    List<Device> findBy(String param, String value) {
+    public List<Device> findBy(String param, String value) {
         Optional<List<Device>> devices = controller.findBy(param, value);
         return devices.get();
     }
 
-    void giveDevice(Device device, User user) {
+    public void giveDevice(Device device, User user) {
         LocalDate date = LocalDate.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 
-        device.setIssued(true);
+        if (!device.getIssued()) {
+            device.setIssued(true);
+        } else {
+            System.out.println("The device is already in use");
+        }
         device.setIssuedDate(date.format(formatter));
         device.setUserId(user.getId());
 
         controller.update(device);
     }
-
 }

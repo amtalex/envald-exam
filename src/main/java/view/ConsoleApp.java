@@ -32,26 +32,37 @@ public class ConsoleApp {
         int commNum = scanComm.nextInt();
         switch (commNum) {
             case 1:
+                ConsoleCommands.showUserList();
                 break;
             case 2:
+                ConsoleCommands.addNewUser();
                 break;
             case 3:
+                ConsoleCommands.deleteUser();
                 break;
             case 4:
+                ConsoleCommands.searchUserByParam();
                 break;
             case 5:
+                ConsoleCommands.showUserDevices();
                 break;
             case 6:
+                ConsoleCommands.printReport();
                 break;
             case 7:
+                ConsoleCommands.addNewDevice();
                 break;
             case 8:
+                ConsoleCommands.deleteDevice();
                 break;
             case 9:
+                ConsoleCommands.givingDeviceToUser();
                 break;
             case 10:
+                ConsoleCommands.searchDeviceByParam();
                 break;
             case 11:
+                ConsoleCommands.showDevicesList();
                 break;
 
             default:

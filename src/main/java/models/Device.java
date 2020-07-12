@@ -19,12 +19,12 @@ public class Device {
         PHONE
     }
 
-    public Device(String type, String deviceName, String model, String issuedDate) {
+    public Device(String type, String deviceName, String model) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.deviceName = deviceName;
         this.model = model;
-        this.issuedDate = issuedDate;
+        this.issuedDate = null;
         this.issued = false;
 
     }
