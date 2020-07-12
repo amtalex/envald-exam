@@ -12,16 +12,20 @@ import java.util.List;
  * 4) поиск оборудования по типу / по "выдано/на_складе" / по пользователю
  * 5) список всего оборудования
  */
-public interface DeviceService {
+public class DeviceService {
 
-    void addDevice(Device device);
+    List<Device> getDevices(){
+        return null;
+    };
 
-    void deleteDevice(Device device);
+    void addDevice(Device device){};
 
-    void giveDevice (Device device, User user);
+    void deleteDevice(Device device){};
 
-    Device findBy(String param, String value);
+    Device findBy(String param, String value){
+        return null;
+    };
 
-    List<Device> getDevices();
+    void giveDevice (Device device, User user){};
 
 }
