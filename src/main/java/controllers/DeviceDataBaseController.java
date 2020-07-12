@@ -1,27 +1,37 @@
 package controllers;
 
+import configurators.DataBaseConfig;
+import exception.EntityNotFoundException;
 import models.Device;
-import models.User;
+import repositories.CrudRepository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class DeviceDataVaseController {
+public class DeviceDataBaseController implements CrudRepository<Device> {
 
-    private static final String dbURL = "jdbc:sqlite:users.db";
+    private static final String tableName = "device.db";
+    private static final String dbURL = (DataBaseConfig.getInstance().getDbUrl()).concat(tableName);
 
-    public void addDevice(Device device) {
+    private DeviceDataBaseController() {
+    }
+
+    public static DeviceDataBaseController getInstance() {
+        return new DeviceDataBaseController();
+    }
+
+    public void add(Device device) {
         try (Connection connection = DriverManager.getConnection(dbURL)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(
                     "INSERT INTO devices (id,type,deviceName,model,issuedDate,issued,userId) " +
                             "VALUES (?,?,?,?,?,?);")) {
                 prepStmt.setString(1, device.getId());
-                prepStmt.setObject(2, device.getType());
+                prepStmt.setString(2, device.getType());
                 prepStmt.setString(3, device.getDeviceName());
                 prepStmt.setString(4, device.getModel());
-                prepStmt.setTimestamp(5, device.getIssuedDate());
+                prepStmt.setString(5, device.getIssuedDate());
                 prepStmt.setBoolean(6, device.getIssued());
                 prepStmt.setString(7, device.getUserId());
                 prepStmt.execute();
@@ -34,22 +44,21 @@ public class DeviceDataVaseController {
         }
     }
 
-    public List<User> selectAll() {
+    public List<Device> selectAll() {
         try (Connection connection = DriverManager.getConnection(dbURL)) {
             try (Statement prepStmt = connection.createStatement()) {
 
-                List<User> devices = new ArrayList<>();
+                List<Device> devices = new ArrayList<>();
                 ResultSet rs = prepStmt.executeQuery("SELECT * FROM devices;");
                 if (rs.next()) {
                     devices.add((new Device(
                             rs.getString("id"),
-                            rs.getObject("type", Device.class),
+                            rs.getString("type"),
                             rs.getString("deviceName"),
                             rs.getString("model"),
                             rs.getString("issuedDate"),
-                            rs.getString("issued"),
-                            rs.getString("userId")
-                    )));
+                            rs.getBoolean("issued"),
+                            rs.getString("userId"))));
                 }
                 return devices;
 
@@ -61,7 +70,10 @@ public class DeviceDataVaseController {
         }
     }
 
-    public Optional<User> findBy(String param, String value) {
+    public Optional<List<Device>> findBy(String param, String value) {
+        Optional<Device> optionalDevice;
+        List<Device> deviceList = new ArrayList<>();
+
         try (Connection connection = DriverManager.getConnection(dbURL)) {
             try (PreparedStatement prepStmt = connection.prepareStatement("SELECT * FROM users WHERE ?=?;")) {
                 prepStmt.setString(1, param);
@@ -69,15 +81,18 @@ public class DeviceDataVaseController {
 
                 ResultSet rs = prepStmt.getResultSet();
                 if (rs.next()) {
-                    return Optional.of(new User(
+                    optionalDevice = Optional.of(new Device(
                             rs.getString("id"),
-                            rs.getString("lastName"),
-                            rs.getString("firstName"),
-                            rs.getString("email"),
-                            rs.getString("role"),
-                            rs.getString("team")));
+                            rs.getString("type"),
+                            rs.getString("deviceName"),
+                            rs.getString("model"),
+                            rs.getString("issuedDate"),
+                            rs.getBoolean("issued"),
+                            rs.getString("userId")));
+                    optionalDevice.ifPresent(deviceList::add);
+
                 } else {
-                    return Optional.empty();
+                    throw new EntityNotFoundException(Device.class, param + " / " + value);
                 }
             } catch (SQLException ex) {
                 throw new RuntimeException(ex);
@@ -85,23 +100,26 @@ public class DeviceDataVaseController {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+        return Optional.of(deviceList).isPresent() ? Optional.of(deviceList) : Optional.empty();
     }
 
-    public void update(User user) {
+    public void update(Device device) {
         try (Connection connection = DriverManager.getConnection(dbURL)) {
             try (PreparedStatement prepStmt = connection.prepareStatement(
-                    "UPDATE users SET " +
-                            "lastName = ?, " +
-                            "firstName = ?, " +
-                            "email = ?, " +
-                            "role = ?, " +
-                            "team = ? WHERE id = ?;")) {
-                prepStmt.setString(1, user.getLastName());
-                prepStmt.setString(2, user.getFirstName());
-                prepStmt.setString(3, user.getEmail());
-                prepStmt.setString(4, user.getRole());
-                prepStmt.setString(5, user.getTeam());
-                prepStmt.setObject(6, user.getId());
+                    "UPDATE devices SET " +
+                            "type = ?, " +
+                            "deviceName = ?, " +
+                            "model = ?, " +
+                            "issuedDate = ?, " +
+                            "issued = ?, " +
+                            "userId = ? WHERE id = ?;")) {
+                prepStmt.setString(1, device.getType());
+                prepStmt.setString(2, device.getDeviceName());
+                prepStmt.setString(3, device.getModel());
+                prepStmt.setString(4, device.getIssuedDate());
+                prepStmt.setBoolean(5, device.getIssued());
+                prepStmt.setString(6, device.getUserId());
+                prepStmt.setString(7, device.getId());
                 prepStmt.execute();
 
             } catch (SQLException ex) {
@@ -112,10 +130,10 @@ public class DeviceDataVaseController {
         }
     }
 
-    public void delete(User user) {
+    public void delete(Device device) {
         try (Connection connection = DriverManager.getConnection(dbURL)) {
-            try (PreparedStatement prepStmt = connection.prepareStatement("DELETE FROM users WHERE id=?;")) {
-                prepStmt.setString(1, user.getId());
+            try (PreparedStatement prepStmt = connection.prepareStatement("DELETE FROM devices WHERE id=?;")) {
+                prepStmt.setString(1, device.getId());
                 prepStmt.execute();
 
             } catch (SQLException ex) {

@@ -2,13 +2,14 @@ package view;
 
 import java.util.Scanner;
 
-public class UsersAndDevicesApp {
+public class ConsoleApp {
 
     public static void main(String[] args) {
 
+        ConsoleApp.run();
     }
 
-    void console() {
+    static void run() {
 
         System.out.println("Available commands..." +
                 "\nUsers commands:" +
@@ -27,8 +28,8 @@ public class UsersAndDevicesApp {
                 "\n11 - Show devices list" +
                 "\nTo select a command, enter it's number");
 
-        Scanner scanHeight = new Scanner(System.in);
-        int commNum = scanHeight.nextInt();
+        Scanner scanComm = new Scanner(System.in);
+        int commNum = scanComm.nextInt();
         switch (commNum) {
             case 1:
                 break;

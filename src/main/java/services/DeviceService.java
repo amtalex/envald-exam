@@ -1,9 +1,13 @@
-package services.devices;
+package services;
 
+import controllers.DeviceDataBaseController;
 import models.Device;
 import models.User;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 1) добавление нового оборудования "на склад"
@@ -14,18 +18,38 @@ import java.util.List;
  */
 public class DeviceService {
 
-    List<Device> getDevices(){
-        return null;
-    };
+    private DeviceDataBaseController controller = DeviceDataBaseController.getInstance();
 
-    void addDevice(Device device){};
+    private DeviceService() {
+    }
 
-    void deleteDevice(Device device){};
+    List<Device> getDevices() {
+        return controller.selectAll();
+    }
 
-    Device findBy(String param, String value){
-        return null;
-    };
+    void addDevice(Device device) {
+        controller.add(device);
+    }
 
-    void giveDevice (Device device, User user){};
+    void deleteDevice(Device device) {
+        if (!device.getIssued())
+            controller.delete(device);
+    }
+
+    List<Device> findBy(String param, String value) {
+        Optional<List<Device>> devices = controller.findBy(param, value);
+        return devices.get();
+    }
+
+    void giveDevice(Device device, User user) {
+        LocalDate date = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+
+        device.setIssued(true);
+        device.setIssuedDate(date.format(formatter));
+        device.setUserId(user.getId());
+
+        controller.update(device);
+    }
 
 }
